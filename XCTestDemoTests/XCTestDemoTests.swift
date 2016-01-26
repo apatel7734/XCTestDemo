@@ -11,9 +11,11 @@ import XCTest
 
 class XCTestDemoTests: XCTestCase {
     
+    var viewController: ViewController!
+    
     override func setUp() {
         super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        viewController = ViewController()
     }
     
     override func tearDown() {
@@ -21,16 +23,25 @@ class XCTestDemoTests: XCTestCase {
         super.tearDown()
     }
     
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measureBlock {
-            // Put the code you want to measure the time of here.
+    func testAsynchronousNetworkCallResultsVerification() {
+        let expectation = expectationWithDescription("This should finish on time.")
+        let testURL = NSURL(string: "https://www.google.com/")!
+        
+        viewController.doSomeNetworkWorWith(testURL) { (response, mimeType, httpURl, error) -> Void in
+            XCTAssertEqual(mimeType, "text/html", "MIMETYPE should be text/html")
+            XCTAssertNotNil(response, "Should not be NIL on success.")
+            XCTAssertEqual(httpURl?.absoluteString, testURL.absoluteString, "Input and Returned String should be same.")
+            expectation.fulfill()
+        }
+        
+        waitForExpectationsWithTimeout(2.0) { (error: NSError?) -> Void in
+            if let error = error {
+                print("Error: \(error.localizedDescription)")
+            }
         }
     }
     
+    func testTweetsRetrievedToUpdate(){
+        
+    }
 }
